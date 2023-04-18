@@ -24,7 +24,7 @@ Goal of this repo is to run Mac os on Lenovo IdeaPad 3 15IML05 Laptop.
 
 |          macOS Ventura 13.3.1           |
 | :-------------------------------------: |
-| ![alt text](13.x/13.3.1/Screenshot.png) |
+| ![alt text](13.x/13.3.1/screenshot.png) |
 
 ## OpenCore Installation Guide
 
