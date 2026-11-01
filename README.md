@@ -11,48 +11,43 @@
 
 # Lenovo-Ideapad-3-15IML05-Hackintosh
 
-[![Github release](https://img.shields.io/github/release/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh.svg?color=blue)](https://github.com/hieplpvip/AppleBacklightSmoother/releases/latest)
-[![Github downloads](https://img.shields.io/github/downloads/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/total.svg?color=blue)](https://github.com/hieplpvip/AppleBacklightSmoother/releases)
+[![Github release](https://img.shields.io/github/release/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh.svg?color=blue)](https://github.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/releases/latest)
+[![Github downloads](https://img.shields.io/github/downloads/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/total.svg?color=blue)](https://github.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/releases)
 [![Donate with PayPal](https://img.shields.io/badge/paypal-donate-red.svg)](https://paypal.me/gajjartejas)
 
-<!---
-[![Build Status](https://travis-ci.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh.svg?branch=master)](https://travis-ci.com/hieplpvip/AppleBacklightSmoother)
-[![Scan Status](https://scan.coverity.com/projects/21839/badge.svg)](https://scan.coverity.com/projects/21839)
--->
+Goal of this repo is to run macOS on Lenovo IdeaPad 3 15IML05 Laptop.
 
-Goal of this repo is to run Mac os on Lenovo IdeaPad 3 15IML05 Laptop.
-
-|          macOS Ventura 13.3.1           |           macOS Sonoma 14.5           |          macOS Sequoia 15.5           |
-| :-------------------------------------: | :-----------------------------------: | :-----------------------------------: |
-| ![alt text](13.x/13.3.1/screenshot.png) | ![alt text](14.x/14.5/screenshot.png) | ![alt text](15.x/15.5/screenshot.png) |
+|          macOS Ventura 13.3.1           |           macOS Sonoma 14.5           |          macOS Sequoia 15.5           |           macOS Tahoe 26.7.2            |
+| :-------------------------------------: | :-----------------------------------: | :-----------------------------------: | :-------------------------------------: |
+| ![alt text](13.x/13.3.1/screenshot.png) | ![alt text](14.x/14.5/screenshot.png) | ![alt text](15.x/15.5/screenshot.png) | ![alt text](26.x/26.7.2/screenshot.png) |
 
 ## OpenCore Installation Guide
 
 Go to [INSTALLATION_GUIDE_OPENCORE.md](INSTALLATION_GUIDE_OPENCORE.md)(**Detailed guide**)
 
-## Important Note
+## Wi-Fi Note
 
-For macOS 15+ `AirportItlwm.kext` is not working, please use `itlwm.kext` + `HeliPort`.
+Native Wi-Fi works out-of-the-box via [`AirportItlwm.kext`](https://github.com/laobamac/itlwm/releases) (maintained by [laobamac](https://github.com/laobamac/itlwm) with builds for macOS 14 Sonoma, macOS 15 Sequoia, and macOS 26 Tahoe) with full native macOS Control Center integration. HeliPort is not required.
 
 ## About this Laptop
 
 ### Original Hardware Info 💻
 
-| Type         | Spec                                                            | Status  | Link                                                                         |
-| :----------- | :-------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------- |
-| Computer     | Lenovo IdeaPad 3 15IML05 U1                                     | Working | -                                                                            |
-| BIOS Version | LENOVO DXCN39WW (10/13/2021)                                    | Working | -                                                                            |
-| CPU          | DualCore Intel Core i3-10110U, 3700 MHz (37 x 100)              | Working | -                                                                            |
-| Chipset      | Intel Comet Point-LP, Intel Comet Lake-U                        | Working | -                                                                            |
-| Graphics     | Intel(R) UHD Graphics                                           | Working | [Guide](https://github.com/acidanthera/WhateverGreen/tree/master/Manual)     |
-| Audio        | Realtek ALC 230, Codec ID:10EC0230 / 17AA383A                   | Working | [Guide](https://github.com/acidanthera/AppleALC/wiki/Installation-and-usage) |
-| Ethernet     | Not Present                                                     | N/A     | -                                                                            |
-| WiFi         | Intel(R) Wireless-AC 9560                                       | Working | -                                                                            |
-| Bluetooth    | Intel(R) Wireless Bluetooth(R) - USB\VID_8087&PID_0AAA&REV_0002 | Working | -                                                                            |
-| Touchpad     | I2C ELAN0001 [PnP - MSFT0001]                                   | Working | -                                                                            |
-| Keyboard     | Standard PS/2 Keyboard                                          | Working | -                                                                            |
-| Webcam       | Integrated Camera - USB\VID_30C9&PID_001B&REV_0005&MI_00        | Working | -                                                                            |
-| Battery      | Sunwoda - L19D3PF5 - Rechargeable LiP - 46270 mWh               | Working | -                                                                            |
+| Type         | Spec                                                            | Status  | Driver / Kext Link                                                                                                                                                 |
+| :----------- | :-------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Computer     | Lenovo IdeaPad 3 15IML05 U1                                     | Working | -                                                                                                                                                                  |
+| BIOS Version | LENOVO DXCN39WW (10/13/2021)                                    | Working | -                                                                                                                                                                  |
+| CPU          | DualCore Intel Core i3-10110U, 3700 MHz (37 x 100)              | Working | Native Power Management via [SSDT-PLUG](https://dortania.github.io/Getting-Started-With-ACPI/Universal/plug.html)                                                 |
+| Chipset      | Intel Comet Point-LP, Intel Comet Lake-U                        | Working | -                                                                                                                                                                  |
+| Graphics     | Intel(R) UHD Graphics                                           | Working | [WhateverGreen.kext](https://github.com/acidanthera/WhateverGreen)                                                                                                 |
+| Audio        | Realtek ALC 230, Codec ID:10EC0230 / 17AA383A                   | Working | [SimpleHDA.kext](https://github.com/laobamac/SimpleHDA)                                                                                                            |
+| Ethernet     | Not Present                                                     | N/A     | -                                                                                                                                                                  |
+| WiFi         | Intel(R) Wireless-AC 9560                                       | Working | [AirportItlwm.kext](https://github.com/laobamac/itlwm/releases)                                                                                                     |
+| Bluetooth    | Intel(R) Wireless Bluetooth(R) - USB\VID_8087&PID_0AAA&REV_0002 | Working | [IntelBluetoothFirmware.kext](https://github.com/lshbluesky/IntelBluetoothFirmware) + [BlueToolFixup.kext](https://github.com/acidanthera/BrcmPatchRAM)          |
+| Touchpad     | I2C ELAN0001 [PnP - MSFT0001]                                   | Working | [VoodooI2C.kext](https://github.com/VoodooI2C/VoodooI2C) + [VoodooI2CHID.kext](https://github.com/VoodooI2C/VoodooI2C)                                           |
+| Keyboard     | Standard PS/2 Keyboard                                          | Working | [VoodooPS2Controller.kext](https://github.com/acidanthera/VoodooPS2)                                                                                               |
+| Webcam       | Integrated Camera - USB\VID_30C9&PID_001B&REV_0005&MI_00        | Working | Native (USB UVC)                                                                                                                                                   |
+| Battery      | Sunwoda - L19D3PF5 - Rechargeable LiP - 46270 mWh               | Working | [SMCBatteryManager.kext](https://github.com/acidanthera/VirtualSMC) + [YogaSMC.kext](https://github.com/zhen-zen/YogaSMC)                                         |
 
 ### Modifications/Accessories 🔨
 
@@ -63,70 +58,62 @@ For macOS 15+ `AirportItlwm.kext` is not working, please use `itlwm.kext` + `Hel
 
 ### Software Status 👨‍💻
 
-| Type                            | Spec | Status                    |
-| :------------------------------ | :--- | :------------------------ |
-| Battery Status                  | -    | Working                   |
-| Brightness With keys(F11 - F12) | -    | Working                   |
-| Sleep                           | -    | Not Working               |
-| Trackpad                        | -    | Laggy and High cpu usages |
+| Type                            | Spec | Status                                                                                                                     |
+| :------------------------------ | :--- | :------------------------------------------------------------------------------------------------------------------------- |
+| Battery Status                  | -    | Working                                                                                                                    |
+| Brightness With keys(F11 - F12) | -    | Working                                                                                                                    |
+| Sleep                           | -    | Not Working                                                                                                                |
+| Trackpad                        | -    | Laggy and High CPU usages when charging (Hardware grounding issue across Windows, Linux & macOS; works normally on battery) |
 
-### Kext Used
+> [!NOTE]
+> **Trackpad Lag**: The trackpad lag and elevated CPU usage (10% to 15%) occurs specifically when the laptop is connected to the charger. This is a known hardware electrical/grounding issue on this model present across Windows, Linux, and macOS. When running on battery power alone, the trackpad operates normally.
 
-| Kext                                                                                       | Status   | Info                                                                                                                                                                                                                                                                                                       |
-| :----------------------------------------------------------------------------------------- | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Lilu.kext](https://github.com/acidanthera/Lilu)                                           | Enabled  | Arbitrary kext and process patching on macOS.                                                                                                                                                                                                                                                              |
-| [VirtualSMC.kext](https://github.com/acidanthera/VirtualSMC)                               | Enabled  | SMC Emulator Layer.                                                                                                                                                                                                                                                                                        |
-| [WhateverGreen.kext](https://github.com/acidanthera/WhateverGreen)                         | Enabled  | Various patches necessary for certain ATI/AMD/Intel/Nvidia GPUs. This is needed for Intel HD 520.                                                                                                                                                                                                          |
-| [ECEnabler.kext](https://github.com/1Revenger1/ECEnabler)                                  | Disabled | Allows reading Embedded Controller fields over 1 byte long, vastly reducing the amount of ACPI modification needed (if any) for working battery status.                                                                                                                                                    |
-| [CpuTscSync.kext](https://github.com/acidanthera/CpuTscSync)                               | Enabled  | It is a Lilu plugin, combining functionality of VoodooTSCSync and disabling xcpm_urgency if TSC is not in sync. It should solve kernel panics after wake.                                                                                                                                                  |
-| [HibernationFixup.kext](https://github.com/acidanthera/HibernationFixup)                   | Disabled | A Lilu plugin intended to fix hibernation compatibility issues.                                                                                                                                                                                                                                            |
-| [AirportItlwm.kext](https://github.com/OpenIntelWireless/itlwm)                            | Enabled  | Intel Wi-Fi Drivers for macOS.                                                                                                                                                                                                                                                                             |
-| [HoRNDIS.kext](https://github.com/jwise/HoRNDIS)                                           | Enabled  | Android USB tethering driver for Mac OS X                                                                                                                                                                                                                                                                  |
-| [HWPEnabler.kext](https://github.com/goodwin/HWPEnable)                                    | Enabled  | HWP is a technology introduced in Skylake which lets the CPU select its own stepping speed without the usage of the CPU Multiplier. Additionally it trottles/boosts itself much faster, which improoves overall CPU performance. With enabled HWP you dont need to create SSDTs with CPU P-States anymore. |
-| [RTCMemoryFixup.kext](https://github.com/acidanthera/RTCMemoryFixup)                       | Enabled  | open source kernel extension providing a way to emulate some offsets in your CMOS (RTC) memory                                                                                                                                                                                                             |
-| [SMCBatteryManager.kext](https://github.com/acidanthera/VirtualSMC)                        | Enabled  | Battery Status Monitoring.                                                                                                                                                                                                                                                                                 |
-| [SMCProcessor.kext](https://github.com/acidanthera/VirtualSMC)                             | Enabled  | Processor Temp Monitoring.                                                                                                                                                                                                                                                                                 |
-| [SMCSuperIO.kext](https://github.com/acidanthera/VirtualSMC)                               | Enabled  | Fan Reading.                                                                                                                                                                                                                                                                                               |
-| [BlueToolFixup.kext](https://github.com/acidanthera/BrcmPatchRAM)                          | Disabled | Required for macOS 12 or newer, as in macOS 12 Apple has changed parts of the Bluetooth stack from kernel-space to user-space                                                                                                                                                                              |
-| [IntelBluetoothFirmware.kext](https://github.com/OpenIntelWireless/IntelBluetoothFirmware) | Disabled | Intel Bluetooth Drivers for macOS.                                                                                                                                                                                                                                                                         |
-| [RestrictEvents.kext](https://github.com/Mieze/RTL8111_driver_for_OS_X)                    | Enabled  | Lilu Kernel extension for blocking unwanted processes causing compatibility issues on different hardware and unlocking the support for certain features restricted to other hardware.                                                                                                                      |
-| [NVMeFix.kext](https://github.com/acidanthera/NVMeFix)                                     | Enabled  | NVMeFix is a set of patches for the Apple NVMe storage driver, IONVMeFamily. Its goal is to improve compatibility with non-Apple SSDs.                                                                                                                                                                     |
-| [FeatureUnlock.kext](https://github.com/acidanthera/FeatureUnlock)                         | Enabled  | Add Sidecar support to unsupported models                                                                                                                                                                                                                                                                  |
-| [BrightnessKeys.kext](https://github.com/acidanthera/BrightnessKeys)                       | Enabled  | Handler for brightness keys without DSDT patches                                                                                                                                                                                                                                                           |
-| [USBMap.kext](https://github.com/USBToolBox/kext)                                          | Enabled  | Contains USB port mappings.                                                                                                                                                                                                                                                                                |
-| [AppleALC.kext](https://github.com/acidanthera/AppleALC)                                   | Enabled  | For Audio.                                                                                                                                                                                                                                                                                                 |
-| [VoodooI2C.kext](https://github.com/VoodooI2C/VoodooI2C)                                   | Enabled  | For I2C Touchpad.                                                                                                                                                                                                                                                                                          |
-| [VoodooI2CHID.kext](https://github.com/VoodooI2C/VoodooI2C)                                | Enabled  | For ELAN Touchpad.                                                                                                                                                                                                                                                                                         |
-| [VoodooPS2Controller.kext](https://github.com/RehabMan/OS-X-Voodoo-PS2-Controller)         | Enabled  | Contains updated Voodoo PS/2 Controller, improved Keyboard & Synaptics TouchPad.                                                                                                                                                                                                                           |
-| [YogaSMC.kext](https://github.com/zhen-zen/YogaSMC)                                        | Enabled  | ACPI driver for OEM hardware.                                                                                                                                                                                                                                                                              |
+### Kexts Used (Grouped by Hardware Feature)
 
-                                                                                                                                                                                                                                          |
+| Hardware Feature | Kext | Status | Info / Purpose |
+| :--- | :--- | :---: | :--- |
+| **System & Core** | [Lilu.kext](https://github.com/acidanthera/Lilu) | Enabled | Arbitrary kext and process patching engine for macOS. |
+| | [VirtualSMC.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | SMC Emulator Layer; essential for macOS boot. |
+| | [RestrictEvents.kext](https://github.com/acidanthera/RestrictEvents) | Enabled | Blocks unwanted background daemons and unlocks hardware features. |
+| **Graphics & Backlight** | [WhateverGreen.kext](https://github.com/acidanthera/WhateverGreen) | Enabled | Framebuffer and display patches for Intel UHD Graphics 630. |
+| | [BrightnessKeys.kext](https://github.com/acidanthera/BrightnessKeys) | Enabled | Handler for display brightness function keys (F11/F12) without DSDT patches. |
+| | [SMCLightSensor.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Ambient light sensor emulation for display backlight persistence. |
+| **Audio** | [SimpleHDA.kext](https://github.com/laobamac/SimpleHDA) | Enabled | Native lightweight AppleHDA audio driver for Realtek ALC230 codec. |
+| **Wi-Fi & Bluetooth** | [AirportItlwm.kext](https://github.com/laobamac/itlwm/releases) | Enabled | Intel Wireless-AC 9560 native Wi-Fi driver with native macOS Control Center integration (via [laobamac/itlwm](https://github.com/laobamac/itlwm)). |
+| | [IntelBluetoothFirmware.kext](https://github.com/lshbluesky/IntelBluetoothFirmware) | Enabled | Intel Bluetooth firmware uploader for Intel AC 9560. |
+| | [IntelBTPatcher.kext](https://github.com/lshbluesky/IntelBluetoothFirmware) | Enabled | Fixes Intel Bluetooth driver bugs and patches functionality on macOS. |
+| | [BlueToolFixup.kext](https://github.com/acidanthera/BrcmPatchRAM) | Enabled | Required for macOS 12 Monterey through macOS 26 Tahoe Bluetooth stack. |
+| **Input (Trackpad & Keyboard)** | [VoodooI2C.kext](https://github.com/VoodooI2C/VoodooI2C) | Enabled | Core I2C bus controller driver for ELAN0001 I2C touchpad. |
+| | [VoodooI2CHID.kext](https://github.com/VoodooI2C/VoodooI2C) | Enabled | I2C HID satellite driver for multi-touch gestures. |
+| | [VoodooPS2Controller.kext](https://github.com/acidanthera/VoodooPS2) | Enabled | PS/2 keyboard controller driver. |
+| **Sensors & Power** | [SMCProcessor.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Processor Temperature Monitoring. |
+| | [SMCSuperIO.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Motherboard hardware sensor and fan speed readouts. |
+| | [SMCBatteryManager.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Battery status and charge cycle monitoring. |
+| | [YogaSMC.kext](https://github.com/zhen-zen/YogaSMC) | Enabled | Lenovo IdeaPad OEM hardware features (battery conservation mode, etc.). |
+| **USB & Storage** | [USBToolBox.kext](https://github.com/USBToolBox/kext) | Enabled | USB port mapping kernel extension. |
+| | [UTBDefault.kext](https://github.com/USBToolBox/kext) | Enabled | Default USB 2.0 / 3.0 port mapping configuration. |
+| | [XHCI-unsupported.kext](https://github.com/dortania/OpenCore-Install-Guide) | Enabled | Non-standard XHCI USB controller compatibility. |
+| | [NVMeFix.kext](https://github.com/acidanthera/NVMeFix) | Enabled | Power management and APST state optimization for non-Apple NVMe SSDs. |
 
-### SSDT Used
+### SSDTs Used (Grouped by Hardware Feature)
 
-| Kext                 | Info                                       | Refrence Link                                                                                                             |
-| :------------------- | :----------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
-| SSDT-AWAC.aml        | Fixing System Clocks                       | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Universal/awac.html)                                          |
-| SSDT-EC.aml          | Fixing Embedded Controller                 | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html)                                        |
-| SSDT-ECRW.aml        | YogaSMC-ACPI driver for OEM hardware       | [Link](https://github.com/zhen-zen/YogaSMC)                                                                               |
-| SSDT-YVPC.aml        | YogaSMC-ACPI driver for OEM hardware       | -                                                                                                                         |
-| SSDT-PNLFCFL.aml.aml | Fixing Backlight                           | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/backlight.html)                                       |
-| SSDT-EC-USBX.aml     | Fixes EC and USB Power Supply              | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html#fixing-embedded-controller-ssdt-ecusbx) |
-| SSDT-RHUB.aml        | Fixing RHUB                                | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Universal/rhub-methods/ssdttime.html)                         |
-| SSDT-GPRW.aml        | GPRW/UPRW/LANC Instant Wake Patch          | [Link](https://dortania.github.io/OpenCore-Post-Install/usb/misc/instant-wake.html)                                       |
-| SSDT-TPD0.aml        | Fixing Trackpads                           | [Link](https://voodooi2c.github.io/#GPIO%20Pinning/GPIO%20Pinning)                                                        |
-| SSDT-HPET.aml        | Fixing IRQ Conflicts                       | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Universal/irq.html)                                           |
-| SSDT-XOSI.aml        | Fixing Trackpads                           | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/trackpad.html)                                        |
-| SSDT-MEM2.aml        | Adds MEM2 ACPI Device to IGPU              | -                                                                                                                         |
-| SSDT-PLUG.aml        | Enables native CPU Power Management (XCPM) | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Universal/plug.html)                                          |
-| SSDT-SBUS.aml        | Adds missing MCHC Device                   | [Link](https://dortania.github.io/Getting-Started-With-ACPI/Universal/smbus.html)                                         |
-| SSDT-RCSM.aml        | -                                          | -                                                                                                                         |
-| SSDT-ALS0.aml        | Fixing SMBus support                       | [Link](https://github.com/Acidanthera/OpenCorePkg/blob/master/Docs/AcpiSamples/Source/SSDT-ALS0.dsl)                      |
+| Hardware Feature | SSDT | Info / Purpose | Reference Link |
+| :--- | :--- | :--- | :--- |
+| **System & Core** | `SSDT-EC.aml` | Injects fake Embedded Controller device (`ACID0001`) with Darwin conditional | [Dortania EC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html) |
+| | `SSDT-RTCAWAC.aml` | Sets `STAS = 1` to resolve AWAC / RTC clock lockup on Comet Lake | [Dortania AWAC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/awac.html) |
+| **CPU Power Management** | `SSDT-PLUG.aml` | Injects `plugin-type=1` under `PR00` for native CPU Power Management (XCPM) | [Dortania Power Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/plug.html) |
+| **Graphics & Backlight** | `SSDT-PNLF.aml` | Defines `PNLF` device under `PCI0.GFX0` for display backlight control | [Dortania Backlight Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/backlight.html) |
+| | `SSDT-ALS0.aml` | Ambient Light Sensor (`ACPI0008`) stub to preserve display brightness across reboots | [OpenCorePkg ALS0](https://github.com/Acidanthera/OpenCorePkg/blob/master/Docs/AcpiSamples/Source/SSDT-ALS0.dsl) |
+| **Input (Trackpad)** | `SSDT-GPI0.aml` | Enables Intel GPIO controller (`_STA = 0x0F`) for VoodooI2C GPIO pinning | [VoodooI2C GPIO Pinning](https://voodooi2c.github.io/#GPIO%20Pinning/GPIO%20Pinning) |
+| | `SSDT-XOSI.aml` | Windows OSI emulation to route I2C trackpad interrupts properly | [Dortania Trackpad Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/trackpad.html) |
+| **USB Power Supply** | `SSDT-USBX.aml` | Injects generic USB power supply properties (`kUSBSleepPortCurrentLimit`, etc.) | [Dortania USBX Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html#fixing-embedded-controller-ssdt-ecusbx) |
+| **Motherboard & Bus** | `SSDT-MCHC.aml` | Adds missing `MCHC` device under `PCI0` for AppleSMBusController | [Dortania SMBus Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/smbus.html) |
+| | `SSDT-SBUS.aml` | Adds `BUS0` under `PCI0.SBUS` for system management bus functionality | [Dortania SMBus Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/smbus.html) |
 
 ### TODO
 
 - Sleep issue
-- Laggy touchpad and high cpu usages during use.
+- Trackpad lag and elevated CPU usage when connected to charger (hardware electrical/grounding issue).
 - Suggest to me via issue.
 
 ### Telegram Channel
@@ -137,12 +124,18 @@ For macOS 15+ `AirportItlwm.kext` is not working, please use `itlwm.kext` + `Hel
 ### Credits
 
 - [Apple](https://www.apple.com) for macOS.
-- [Acidanthera](https://github.com/acidanthera) for most of the kexts.
-- [goodwin](https://github.com/goodwin) for ALCPlugFix.
-- [RehabMan](https://github.com/RehabMan) for some patches.
-- [Steve Zheng](https://github.com/stevezhengshiqi) for some patches.
-- [Sniki](https://github.com/Sniki) for some patches.
-- [daliansky](https://github.com/daliansky) for some patches.
-- [Moh_Ameen](https://github.com/ameenjuz) for some patches.
-- [OpenIntelWireless](https://github.com/OpenIntelWireless) for Intel WiFi drivers.
-- And anyone else that helped to develop and improve hackintoshing.
+- [Acidanthera](https://github.com/acidanthera) for OpenCorePkg, Lilu, VirtualSMC, WhateverGreen, BrightnessKeys, RestrictEvents, NVMeFix, BrcmPatchRAM, and VoodooPS2.
+- [laobamac](https://github.com/laobamac) for SimpleHDA and AirportItlwm / itlwm.
+- [lshbluesky](https://github.com/lshbluesky) for IntelBluetoothFirmware and IntelBTPatcher.
+- [OpenIntelWireless](https://github.com/OpenIntelWireless) for Intel Wi-Fi & Bluetooth drivers and HeliPort.
+- [VoodooI2C](https://github.com/VoodooI2C/VoodooI2C) for I2C Touchpad driver and gesture support.
+- [USBToolBox](https://github.com/USBToolBox) for USB mapping utilities and companion kext.
+- [zhen-zen](https://github.com/zhen-zen) for YogaSMC.
+- [Dortania](https://dortania.github.io/) for comprehensive OpenCore installation and post-install guides.
+- [corpnewt](https://github.com/corpnewt) for GenSMBIOS, ProperTree, and SSDTTime.
+- [RehabMan](https://github.com/RehabMan) for essential ACPI patches and guides.
+- [daliansky](https://github.com/daliansky) for ACPI hotpatch samples and Dortania contributions.
+- [Steve Zheng](https://github.com/stevezhengshiqi) for ACPI patches.
+- [Sniki](https://github.com/Sniki) for ACPI patching guides.
+- [Moh_Ameen](https://github.com/ameenjuz) for initial IdeaPad patches.
+- And everyone in the hackintosh community who contributed to open-source drivers and tools.
