@@ -17,9 +17,9 @@
 
 Goal of this repo is to run macOS on Lenovo IdeaPad 3 15IML05 Laptop.
 
-|          macOS Ventura 13.3.1           |           macOS Sonoma 14.5           |          macOS Sequoia 15.5           |           macOS Tahoe 26.7.2            |
-| :-------------------------------------: | :-----------------------------------: | :-----------------------------------: | :-------------------------------------: |
-| ![alt text](13.x/13.3.1/screenshot.png) | ![alt text](14.x/14.5/screenshot.png) | ![alt text](15.x/15.5/screenshot.png) | ![alt text](26.x/26.7.2/screenshot.png) |
+|          macOS Ventura 13.3.1           |           macOS Sonoma 14.5           |          macOS Sequoia 15.5           |           macOS Tahoe 26.7.2            |           macOS Tahoe 26.7.3            |
+| :-------------------------------------: | :-----------------------------------: | :-----------------------------------: | :-------------------------------------: | :-------------------------------------: |
+| ![alt text](13.x/13.3.1/screenshot.png) | ![alt text](14.x/14.5/screenshot.png) | ![alt text](15.x/15.5/screenshot.png) | ![alt text](26.x/26.7.2/screenshot.png) | ![alt text](26.x/26.7.3/screenshot.png) |
 
 ## OpenCore Installation Guide
 

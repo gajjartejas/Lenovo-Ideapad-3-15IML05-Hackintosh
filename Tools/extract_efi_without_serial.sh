@@ -88,12 +88,16 @@ cp -R "${SOURCE_OC_DIR}/"* "${TEMP_OC_DIR}/"
 
 if [ -n "${SOURCE_BOOT_DIR}" ] && [ -d "${SOURCE_BOOT_DIR}" ]; then
   echo "Copying BOOT files from: ${SOURCE_BOOT_DIR}"
-  cp -R "${SOURCE_BOOT_DIR}/"* "${TEMP_BOOT_DIR}/"
+  cp "${SOURCE_BOOT_DIR}/BOOTx64.efi" "${TEMP_BOOT_DIR}/" 2>/dev/null || true
+  [ -f "${SOURCE_BOOT_DIR}/.contentFlavour" ] && cp "${SOURCE_BOOT_DIR}/.contentFlavour" "${TEMP_BOOT_DIR}/" 2>/dev/null || true
+  [ -f "${SOURCE_BOOT_DIR}/.contentVisibility" ] && cp "${SOURCE_BOOT_DIR}/.contentVisibility" "${TEMP_BOOT_DIR}/" 2>/dev/null || true
 else
   # Ensure standard OpenCore BOOT folder exists
   echo "Creating standard BOOT folder with OpenCore bootstrap..."
-  if [ -f "/tmp/oc_107/X64/EFI/BOOT/BOOTx64.efi" ]; then
-    cp -R /tmp/oc_107/X64/EFI/BOOT/* "${TEMP_BOOT_DIR}/"
+  if [ -f "${SOURCE_OC_DIR}/../BOOT/BOOTx64.efi" ]; then
+    cp "${SOURCE_OC_DIR}/../BOOT/BOOTx64.efi" "${TEMP_BOOT_DIR}/BOOTx64.efi"
+  elif [ -f "/Volumes/EFI/EFI/BOOT/BOOTx64.efi" ]; then
+    cp "/Volumes/EFI/EFI/BOOT/BOOTx64.efi" "${TEMP_BOOT_DIR}/BOOTx64.efi"
   elif [ -f "${TEMP_OC_DIR}/OpenCore.efi" ]; then
     cp "${TEMP_OC_DIR}/OpenCore.efi" "${TEMP_BOOT_DIR}/BOOTx64.efi"
   fi
@@ -129,6 +133,14 @@ if [ -f "${CONFIG_PLIST}" ]; then
 else
   echo "Warning: config.plist not found in extracted OC folder."
 fi
+
+# Clean up unwanted metadata and temporary files
+echo "Cleaning up temporary and hidden metadata files..."
+find "${TEMP_DIR}" -name ".DS_Store" -delete 2>/dev/null || true
+find "${TEMP_DIR}" -name "._*" -delete 2>/dev/null || true
+find "${TEMP_DIR}" -name "*~" -delete 2>/dev/null || true
+find "${TEMP_DIR}" -name "*.bak" -delete 2>/dev/null || true
+rm -rf "${TEMP_DIR}/EFI/OC/.git" "${TEMP_DIR}/EFI/OC/CHANGELOG.md" 2>/dev/null || true
 
 # Detect OpenCore version from NVRAM or fallback
 Version=$(nvram 4D1FDA02-38C7-4A6A-9CC6-4BCCA8B30102:opencore-version 2>/dev/null | sed -n 's/.*REL-*//p' | sed -e 's/-/_/g')

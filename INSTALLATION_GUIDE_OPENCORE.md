@@ -2,7 +2,7 @@
 
 Comprehensive step-by-step OpenCore configuration and installation guide tailored for the **Lenovo IdeaPad 3 15IML05** (Intel 10th Gen Comet Lake-U, Core i3-10110U).
 
-This guide analyzes the settings from the pre-configured release package ([`Tools/OC_107_2026_03_20.zip`](file:///Users/tejas/Desktop/GitHub/Lenovo-Ideapad-3-15IML05-Hackintosh/Tools/OC_107_2026_03_20.zip)) and highlights specific differences from the generic Dortania guide.
+This guide analyzes the settings from the pre-configured release package ([`Tools/OC_108_2026_09_27.zip`](file:///Users/tejas/Desktop/GitHub/Lenovo-Ideapad-3-15IML05-Hackintosh/Tools/OC_108_2026_09_27.zip)) and highlights specific differences from the generic Dortania guide.
 
 ---
 
@@ -10,7 +10,7 @@ This guide analyzes the settings from the pre-configured release package ([`Tool
 
 * **Dortania Guide**: [Dortania OpenCore Install Guide: Laptop Coffee Lake Plus and Comet Lake](https://dortania.github.io/OpenCore-Install-Guide/config-laptop.plist/coffee-lake-plus.html)
 * **Raw Source**: [coffee-lake-plus.md](https://raw.githubusercontent.com/dortania/OpenCore-Install-Guide/refs/heads/master/config-laptop.plist/coffee-lake-plus.md)
-* **OpenCore Version**: `1.0.7` (`REL-107-2026-03-20`)
+* **OpenCore Version**: `1.0.8` (`REL-108-2026-09-27`)
 
 ---
 
@@ -138,10 +138,11 @@ Configured under `DeviceProperties -> Add`:
 OpenCore executes kexts in strict order. In `Tools/OC_107_2026_03_20.zip`, kexts are ordered to prevent panics:
 
 1. **`Lilu.kext`**: Must load first.
-2. **`BlueToolFixup.kext`**: (`MinKernel: 21.0.0`) Bluetooth stack compatibility for macOS 12 Monterey through macOS 26 Tahoe.
-3. **`BrightnessKeys.kext`**: Native Fn-key brightness mapping.
-4. **`IntelBTPatcher.kext` & `IntelBluetoothFirmware.kext`**: Firmware and driver for the Intel AC 9560 Bluetooth controller.
-5. **`NVMeFix.kext`**: (`MinKernel: 18.0.0`) Power management for third-party NVMe drives.
+2. **`BrightnessKeys.kext`**: Native Fn-key brightness mapping.
+3. **`IntelBluetoothFirmware.kext`**: Firmware uploader for the Intel AC 9560 Bluetooth controller.
+4. **`IntelBTPatcher.kext`**: (**Load before BlueToolFixup**): Patches Apple Bluetooth daemon and handshake routines.
+5. **`BlueToolFixup.kext`**: (`MinKernel: 21.0.0`) Bluetooth stack compatibility for macOS 12 Monterey through macOS 26 Tahoe.
+6. **`NVMeFix.kext`**: (`MinKernel: 18.0.0`) Power management for third-party NVMe drives.
 6. **`RestrictEvents.kext`**: Unlocks macOS features and blocks unwanted crashreporter daemons.
 7. **`VirtualSMC.kext`** + Satellites:
    - `SMCBatteryManager.kext` (Battery readouts)
@@ -203,13 +204,13 @@ Configured under `NVRAM -> Add -> 7C436110-AB2A-4BBB-A880-FE41995C9F82`:
 
 #### `boot-args`
 ```
--v debug=0x100 keepsyms=1 -igfxblt -vi2c-force-polling
+-v debug=0x100 keepsyms=1 -igfxbls -vi2c-force-polling
 ```
 
 * **`-v`**: Verbose boot mode (shows detailed boot logs).
 * **`debug=0x100`**: Disables auto-reboot on kernel panic.
 * **`keepsyms=1`**: Preserves debug symbols in panic reports.
-* **`-igfxblt`**: WhateverGreen flag to smooth backlight transition and fix Comet Lake laptop backlight brightness bugs.
+* **`-igfxbls`**: WhateverGreen backlight smoother; activates smooth display transitions and prevents the 2–3 minute black screen hang prior to login window.
 * **`-vi2c-force-polling`**: **Hardware-Specific Workaround**: Forces `VoodooI2C` into polling mode. Resolves interrupt contention on the ELAN0001 touchpad.
 
 #### Other NVRAM Properties
@@ -221,13 +222,13 @@ Configured under `NVRAM -> Add -> 7C436110-AB2A-4BBB-A880-FE41995C9F82`:
 
 ### 4.7 PlatformInfo & SMBIOS
 
-* **`SystemProductName`**: `MacBookPro16,3`
-  * Closest official Apple match for Intel Comet Lake 10th Gen Quad/Dual Core with Intel UHD 630.
+* **`SystemProductName`**: `MacBookPro16,2`
+  * Optimal official Apple match for 10th Gen Intel Ice Lake / Comet Lake with Intel Iris Plus / UHD 630.
 * **`Automatic`**: `True`
 * **`UpdateSMBIOSMode`**: `Custom`
   * Paired with `Kernel -> Quirks -> CustomSMBIOSGuid: True` so that Windows and Linux boot unaffected by Apple SMBIOS data.
 * **`Generic` Identifiers**:
-  * Generate using [GenSMBIOS](https://github.com/corpnewt/GenSMBIOS) selecting `MacBookPro16,3`:
+  * Generate using [GenSMBIOS](https://github.com/corpnewt/GenSMBIOS) selecting `MacBookPro16,2`:
     * `SystemSerialNumber`
     * `SystemUUID`
     * `MLB`
@@ -274,6 +275,6 @@ Configured under `NVRAM -> Add -> 7C436110-AB2A-4BBB-A880-FE41995C9F82`:
    # Mount the EFI volume
    sudo diskutil mount /dev/disk0s1
    ```
-2. **Copy EFI Folder**: Copy the sanitized `EFI` folder from [`Tools/OC_107_2026_03_20.zip`](file:///Users/tejas/Desktop/GitHub/Lenovo-Ideapad-3-15IML05-Hackintosh/Tools/OC_107_2026_03_20.zip) into your mounted `/Volumes/EFI/`.
+2. **Copy EFI Folder**: Copy the sanitized `EFI` folder from [`Tools/OC_108_2026_09_27.zip`](file:///Users/tejas/Desktop/GitHub/Lenovo-Ideapad-3-15IML05-Hackintosh/Tools/OC_108_2026_09_27.zip) into your mounted `/Volumes/EFI/`.
 3. **Populate SMBIOS**: Open `EFI/OC/config.plist` using ProperTree and fill in your unique `SystemSerialNumber`, `SystemUUID`, and `MLB` generated via GenSMBIOS.
 4. **Reset NVRAM**: On first boot from the new EFI, select **Reset NVRAM** from the OpenCore picker.
