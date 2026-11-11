@@ -17,9 +17,9 @@
 
 Goal of this repo is to run macOS on Lenovo IdeaPad 3 15IML05 Laptop.
 
-|          macOS Ventura 13.3.1           |           macOS Sonoma 14.5           |          macOS Sequoia 15.5           |           macOS Tahoe 26.7.2            |           macOS Tahoe 26.7.3            |
-| :-------------------------------------: | :-----------------------------------: | :-----------------------------------: | :-------------------------------------: | :-------------------------------------: |
-| ![alt text](13.x/13.3.1/screenshot.png) | ![alt text](14.x/14.5/screenshot.png) | ![alt text](15.x/15.5/screenshot.png) | ![alt text](26.x/26.7.2/screenshot.png) | ![alt text](26.x/26.7.3/screenshot.png) |
+|          macOS Ventura 13.3.1           |           macOS Sonoma 14.5           |          macOS Sequoia 15.5           |           macOS Tahoe 26.7.3            |
+| :-------------------------------------: | :-----------------------------------: | :-----------------------------------: | :-------------------------------------: |
+| ![alt text](13.x/13.3.1/screenshot.png) | ![alt text](14.x/14.5/screenshot.png) | ![alt text](15.x/15.5/screenshot.png) | ![alt text](26.x/26.7.3/screenshot.png) |
 
 ## OpenCore Installation Guide
 
@@ -74,41 +74,53 @@ Native Wi-Fi works out-of-the-box via [`AirportItlwm.kext`](https://github.com/l
 | :--- | :--- | :---: | :--- |
 | **System & Core** | [Lilu.kext](https://github.com/acidanthera/Lilu) | Enabled | Arbitrary kext and process patching engine for macOS. |
 | | [VirtualSMC.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | SMC Emulator Layer; essential for macOS boot. |
+| | [CpuTscSync.kext](https://github.com/acidanthera/CpuTscSync) | Enabled | Syncs TSC across CPU cores for reliable timing. |
+| | [HibernationFixup.kext](https://github.com/acidanthera/HibernationFixup) | Enabled | Resolves hibernation and RTC sleep sync issues. |
 | | [RestrictEvents.kext](https://github.com/acidanthera/RestrictEvents) | Enabled | Blocks unwanted background daemons and unlocks hardware features. |
+| | [FeatureUnlock.kext](https://github.com/acidanthera/FeatureUnlock) | Enabled | Unlocks Sidecar, AirPlay, and night shift support. |
+| | [ECEnabler.kext](https://github.com/1Revenger1/ECEnabler) | Disabled | Disabled; Embedded Controller handled natively via `SSDT-EC.aml`. |
 | **Graphics & Backlight** | [WhateverGreen.kext](https://github.com/acidanthera/WhateverGreen) | Enabled | Framebuffer and display patches for Intel UHD Graphics 630. |
 | | [BrightnessKeys.kext](https://github.com/acidanthera/BrightnessKeys) | Enabled | Handler for display brightness function keys (F11/F12) without DSDT patches. |
-| | [SMCLightSensor.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Ambient light sensor emulation for display backlight persistence. |
 | **Audio** | [SimpleHDA.kext](https://github.com/laobamac/SimpleHDA) | Enabled | Native lightweight AppleHDA audio driver for Realtek ALC230 codec. |
-| **Wi-Fi & Bluetooth** | [AirportItlwm.kext](https://github.com/laobamac/itlwm/releases) | Enabled | Intel Wireless-AC 9560 native Wi-Fi driver with native macOS Control Center integration (via [laobamac/itlwm](https://github.com/laobamac/itlwm)). |
+| | [AppleALC.kext](https://github.com/acidanthera/AppleALC) | Enabled | Alternative / supplementary audio patcher for AppleHDA. |
+| **Wi-Fi & Bluetooth** | [AirportItlwm.kext](https://github.com/laobamac/itlwm/releases) | Enabled | Intel Wireless-AC 9560 native Wi-Fi driver with macOS Control Center integration (via [laobamac/itlwm](https://github.com/laobamac/itlwm)). |
+| | [itlwm.kext](https://github.com/OpenIntelWireless/itlwm) | Disabled | Disabled; replaced by native `AirportItlwm.kext` (no HeliPort needed). |
 | | [IntelBluetoothFirmware.kext](https://github.com/lshbluesky/IntelBluetoothFirmware) | Enabled | Intel Bluetooth firmware uploader for Intel AC 9560. |
 | | [IntelBTPatcher.kext](https://github.com/lshbluesky/IntelBluetoothFirmware) | Enabled | Fixes Intel Bluetooth driver bugs and patches functionality on macOS. |
 | | [BlueToolFixup.kext](https://github.com/acidanthera/BrcmPatchRAM) | Enabled | Required for macOS 12 Monterey through macOS 26 Tahoe Bluetooth stack. |
+| | [BrcmPatchRAM3.kext](https://github.com/acidanthera/BrcmPatchRAM) | Disabled | Disabled; Intel Bluetooth card present. |
+| | [BrcmFirmwareData.kext](https://github.com/acidanthera/BrcmPatchRAM) | Disabled | Disabled; Intel Bluetooth card present. |
 | **Input (Trackpad & Keyboard)** | [VoodooI2C.kext](https://github.com/VoodooI2C/VoodooI2C) | Enabled | Core I2C bus controller driver for ELAN0001 I2C touchpad. |
 | | [VoodooI2CHID.kext](https://github.com/VoodooI2C/VoodooI2C) | Enabled | I2C HID satellite driver for multi-touch gestures. |
 | | [VoodooPS2Controller.kext](https://github.com/acidanthera/VoodooPS2) | Enabled | PS/2 keyboard controller driver. |
 | **Sensors & Power** | [SMCProcessor.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Processor Temperature Monitoring. |
 | | [SMCSuperIO.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Motherboard hardware sensor and fan speed readouts. |
 | | [SMCBatteryManager.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Battery status and charge cycle monitoring. |
-| | [YogaSMC.kext](https://github.com/zhen-zen/YogaSMC) | Enabled | Lenovo IdeaPad OEM hardware features (battery conservation mode, etc.). |
-| **USB & Storage** | [USBToolBox.kext](https://github.com/USBToolBox/kext) | Enabled | USB port mapping kernel extension. |
-| | [UTBDefault.kext](https://github.com/USBToolBox/kext) | Enabled | Default USB 2.0 / 3.0 port mapping configuration. |
-| | [XHCI-unsupported.kext](https://github.com/dortania/OpenCore-Install-Guide) | Enabled | Non-standard XHCI USB controller compatibility. |
-| | [NVMeFix.kext](https://github.com/acidanthera/NVMeFix) | Enabled | Power management and APST state optimization for non-Apple NVMe SSDs. |
+| | [YogaSMC.kext](https://github.com/zhen-zen/YogaSMC) | Disabled | Disabled; OEM conservation mode features currently inactive. |
+| **USB & Storage** | [NVMeFix.kext](https://github.com/acidanthera/NVMeFix) | Enabled | Power management and APST state optimization for non-Apple NVMe SSDs. |
+| | [HoRNDIS.kext](https://github.com/jwise/HoRNDIS) | Enabled | USB tethering support for Android devices. |
+| | [USBMap.kext](https://github.com/corpnewt/USBMap) | Disabled | Disabled; native macOS XHCI handles ports (under 15-port limit) without D3 crashes. |
 
 ### SSDTs Used (Grouped by Hardware Feature)
 
-| Hardware Feature | SSDT | Info / Purpose | Reference Link |
-| :--- | :--- | :--- | :--- |
-| **System & Core** | `SSDT-EC.aml` | Injects fake Embedded Controller device (`ACID0001`) with Darwin conditional | [Dortania EC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html) |
-| | `SSDT-RTCAWAC.aml` | Sets `STAS = 1` to resolve AWAC / RTC clock lockup on Comet Lake | [Dortania AWAC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/awac.html) |
-| **CPU Power Management** | `SSDT-PLUG.aml` | Injects `plugin-type=1` under `PR00` for native CPU Power Management (XCPM) | [Dortania Power Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/plug.html) |
-| **Graphics & Backlight** | `SSDT-PNLF.aml` | Defines `PNLF` device under `PCI0.GFX0` for display backlight control | [Dortania Backlight Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/backlight.html) |
-| | `SSDT-ALS0.aml` | Ambient Light Sensor (`ACPI0008`) stub to preserve display brightness across reboots | [OpenCorePkg ALS0](https://github.com/Acidanthera/OpenCorePkg/blob/master/Docs/AcpiSamples/Source/SSDT-ALS0.dsl) |
-| **Input (Trackpad)** | `SSDT-GPI0.aml` | Enables Intel GPIO controller (`_STA = 0x0F`) for VoodooI2C GPIO pinning | [VoodooI2C GPIO Pinning](https://voodooi2c.github.io/#GPIO%20Pinning/GPIO%20Pinning) |
-| | `SSDT-XOSI.aml` | Windows OSI emulation to route I2C trackpad interrupts properly | [Dortania Trackpad Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/trackpad.html) |
-| **USB Power Supply** | `SSDT-USBX.aml` | Injects generic USB power supply properties (`kUSBSleepPortCurrentLimit`, etc.) | [Dortania USBX Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html#fixing-embedded-controller-ssdt-ecusbx) |
-| **Motherboard & Bus** | `SSDT-MCHC.aml` | Adds missing `MCHC` device under `PCI0` for AppleSMBusController | [Dortania SMBus Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/smbus.html) |
-| | `SSDT-SBUS.aml` | Adds `BUS0` under `PCI0.SBUS` for system management bus functionality | [Dortania SMBus Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/smbus.html) |
+| Hardware Feature | SSDT | Status | Info / Purpose | Reference Link |
+| :--- | :--- | :---: | :--- | :--- |
+| **System & Core** | `SSDT-AWAC.aml` | Enabled | Sets `STAS = 1` to resolve AWAC / RTC clock lockup on Comet Lake | [Dortania AWAC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/awac.html) |
+| | `SSDT-EC.aml` | Enabled | Injects fake Embedded Controller device (`ACID0001`) with Darwin conditional | [Dortania EC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html) |
+| | `SSDT-GPRW.aml` | Enabled | Resolves instant wake from sleep caused by USB/LAN assertion | [Dortania Sleep Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/sleep.html) |
+| | `SSDT-ECRW.aml` | Disabled | Disabled; helper table for disabled `YogaSMC.kext` | [YogaSMC](https://github.com/zhen-zen/YogaSMC) |
+| | `SSDT-YVPC.aml` | Disabled | Disabled; Lenovo virtual peripheral controller for disabled `YogaSMC.kext` | [YogaSMC](https://github.com/zhen-zen/YogaSMC) |
+| | `SSDT-RCSM.aml` | Disabled | Disabled; redundant helper table not required on Comet Lake | - |
+| **CPU Power Management** | `SSDT-PLUG.aml` | Enabled | Injects `plugin-type=1` under `PR00` for native CPU Power Management (XCPM) | [Dortania Power Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/plug.html) |
+| **Graphics & Backlight** | `SSDT-PNLF.aml` | Enabled | Defines clean `PNLF` device (`_UID = 0x13`) under `PCI0.GFX0` for display backlight | [Dortania Backlight Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/backlight.html) |
+| | `SSDT-ALS0.aml` | Enabled | Ambient Light Sensor (`ACPI0008`) stub to preserve display brightness across reboots | [OpenCorePkg ALS0](https://github.com/Acidanthera/OpenCorePkg/blob/master/Docs/AcpiSamples/Source/SSDT-ALS0.dsl) |
+| | `SSDT-MEM2.aml` | Enabled | Adds missing MEM2 device to IGPU for proper memory map integration | [Dortania IGPU Guide](https://dortania.github.io/Getting-Started-With-ACPI/) |
+| **Input (Trackpad)** | `SSDT-TPD0.aml` | Enabled | Injects fixed I2C trackpad device with 4-arg `_DSM` fallback to prevent panics | [VoodooI2C Guide](https://voodooi2c.github.io/) |
+| | `SSDT-HPET.aml` | Enabled | Fixes IRQ routing conflicts (IRQ 0, 8) for system timer and RTC | [Dortania HPET Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/irq.html) |
+| | `SSDT-XOSI.aml` | Enabled | Windows OSI emulation to route I2C trackpad interrupts properly | [Dortania Trackpad Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/trackpad.html) |
+| **USB & Motherboard** | `SSDT-USBX.aml` | Enabled | Injects generic USB power supply properties (`kUSBSleepPortCurrentLimit`, etc.) | [Dortania USBX Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html#fixing-embedded-controller-ssdt-ecusbx) |
+| | `SSDT-SBUS.aml` | Enabled | Adds `BUS0` under `PCI0.SBUS` for system management bus functionality | [Dortania SMBus Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/smbus.html) |
+| | `SSDT-RHUB.aml` | Disabled | Disabled; disabling RHUB broke internal Bluetooth (HS10) radio descriptors | - |
 
 ### TODO
 
