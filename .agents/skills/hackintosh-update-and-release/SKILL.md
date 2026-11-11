@@ -64,12 +64,15 @@ Never commit personal hardware identifiers (`SystemSerialNumber`, `SystemUUID`, 
 ## 3. Version Folder & Assets
 
 1. **Create Version Directory**:
-   - Format: `<major>.x/<version>/` (e.g., `26.x/26.7.2/`).
-2. **Screenshot Capture & Optimization**:
-   - If the user provides a raw screenshot (e.g., `About This Mac`), convert and compress it using 8-bit colormap PNG to minimize repository bloat (~20-50 KB):
+   - Format: `<major>.x/<version>/` (e.g., `26.x/26.7.3/`).
+2. **Screenshot Policy (STRICT)**:
+   - **CRITICAL**: **NEVER reuse, duplicate, or copy a screenshot from a previous macOS version.**
+   - **ALWAYS check if a fresh screenshot for the target version is placed.**
+   - **If a screenshot is NOT placed or provided by the user, STOP and explicitly ASK the user to provide it.** Do NOT make assumptions or substitute older screenshots under any circumstance.
+   - **Optimization & Compression**: Once the user provides the raw screenshot, compress it to 8-bit colormap PNG to prevent repository bloat (~20–50 KB):
      ```bash
-     ffmpeg -i "raw_screenshot.png" -vf "fps=1,scale=iw:ih:flags=lanczos,palettegen" /tmp/palette.png -y
-     ffmpeg -i "raw_screenshot.png" -i /tmp/palette.png -filter_complex "paletteuse=dither=bayer:bayer_scale=3" "26.x/26.7.2/screenshot.png" -y
+     ffmpeg -i "raw_screenshot.png" -vf palettegen -vframes 1 /tmp/palette.png -y
+     ffmpeg -i "raw_screenshot.png" -i /tmp/palette.png -lavfi "paletteuse=dither=bayer:bayer_scale=3" -vframes 1 "<major>.x/<version>/screenshot.png" -y
      ```
 3. **Version README**:
    - Place a `README.md` in `<major>.x/<version>/README.md` detailing the macOS version, OpenCore build, screenshot, and hardware working status table.
@@ -79,9 +82,13 @@ Never commit personal hardware identifiers (`SystemSerialNumber`, `SystemUUID`, 
 ## 4. Documentation Updates
 
 ### Root `README.md`
-- **Screenshot Table**: Add the new macOS version row with link to the version directory and screenshot.
+- **Screenshot Table**:
+  - Keep only **one** screenshot column for the latest active release of each macOS version family.
+  - When releasing a newer point/minor release (e.g. `macOS Tahoe 26.7.3`), **remove the previous point release column** (`macOS Tahoe 26.7.2`) from the table so that the root table remains concise and showcases only the latest release per macOS family.
 - **Hardware Table**: Ensure every hardware component references the active upstream kext repository (e.g., [laobamac/SimpleHDA](https://github.com/laobamac/SimpleHDA), [laobamac/itlwm](https://github.com/laobamac/itlwm), [acidanthera/BrcmPatchRAM](https://github.com/acidanthera/BrcmPatchRAM), [lshbluesky/IntelBluetoothFirmware](https://github.com/lshbluesky/IntelBluetoothFirmware)).
-- **Grouped Tables**: Group `Kexts Used` and `SSDTs Used` logically by hardware features (Core/System, Graphics, Audio, Network, Input & Sensors, USB & Storage).
+- **Grouped Tables (Kexts & SSDTs)**:
+  - **MANDATORY CONFIG AUDIT**: Always double-check `config.plist` (`Kernel -> Add` and `ACPI -> Add`) to verify the exact `Enabled` status (`True` vs `False`).
+  - Explicitly mark disabled kexts (e.g., `YogaSMC.kext`, `USBMap.kext`, `itlwm.kext`, `ECEnabler.kext`) and disabled SSDTs (e.g., `SSDT-RHUB.aml`, `SSDT-ECRW.aml`, `SSDT-YVPC.aml`, `SSDT-RCSM.aml`) as **`Disabled`** in the table.
 - **Hardware Quirks Callout**: Document any hardware-level quirks (e.g., trackpad lag caused by charger grounding issues across all operating systems).
 - **Credits Section**: Keep credits updated with links to authors and upstream contributors.
 
@@ -171,10 +178,10 @@ Match previous repository releases in style, naming, and structure:
 
 - [ ] Inspected running system (`sw_vers`, `nvram`, `kextstat`).
 - [ ] Ran `Tools/extract_efi_without_serial.sh` and verified `verify_sanitized_efi.sh`.
+- [ ] Verified fresh screenshot placed for target version (or asked user if missing; NEVER used previous version screenshot).
 - [ ] Created `<major>.x/<version>/` with optimized `screenshot.png` and `README.md`.
-- [ ] Updated root `README.md` (hardware tables, grouped kexts/SSDTs, trackpad grounding note, credits).
+- [ ] Updated root `README.md` (replaced previous point-release screenshot column with latest, verified and marked disabled Kexts/SSDTs, trackpad grounding note, credits).
 - [ ] Verified or added `INSTALLATION_GUIDE_OPENCORE.md` following Dortania structure.
 - [ ] Created branch `feat--macos-<version>-support`, committed, opened PR, and squash merged.
 - [ ] Triaged and responded to open issues.
 - [ ] Published GitHub release with tag `vX.Y.Z`, matching release title, and sanitized EFI zip.
-
