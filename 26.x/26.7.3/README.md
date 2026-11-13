@@ -42,3 +42,10 @@ Always back up your working EFI partition before upgrading.
 ### Download
 
 Please check the [Releases](https://github.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/releases) section to download the pre-configured OpenCore EFI archive (`OC_108_2026_09_27.zip`).
+
+### IdeaVPC companion update (v4.1.1)
+
+- Includes the native macOS 26 IdeaVPC 1.0 build 3 companion app as a separate release ZIP, with fresh [screenshots in the main README](../../README.md#ideapad-vpc-tool).
+- The updated OpenCore 1.0.8 EFI enables YogaSMC 1.5.3 for the IdeaVPC service. `SSDT-MEM2.aml` is disabled; `SSDT-ECRW.aml`, `SSDT-YVPC.aml` and `SSDT-RHUB.aml` remain disabled.
+- The EFI export sanitizes `ROM` in addition to serial, UUID and MLB fields. Generate your own values before booting.
+- Battery/device reads, live diagnostics and all four app pages were checked on macOS 26.7.3. Firmware-changing controls and administrator elevation remain untested. Sleep and charger-related trackpad issues remain.

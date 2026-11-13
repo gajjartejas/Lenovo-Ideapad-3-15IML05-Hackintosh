@@ -21,6 +21,16 @@ Goal of this repo is to run macOS on Lenovo IdeaPad 3 15IML05 Laptop.
 | :-------------------------------------: | :-----------------------------------: | :-----------------------------------: | :-------------------------------------: |
 | ![alt text](13.x/13.3.1/screenshot.png) | ![alt text](14.x/14.5/screenshot.png) | ![alt text](15.x/15.5/screenshot.png) | ![alt text](26.x/26.7.3/screenshot.png) |
 
+## IdeaPad VPC tool
+
+[IdeaVPC](Tools/IdeaVPC/README.md) is a native SwiftUI companion for the Lenovo IdeaPad `IdeaVPC` service provided by [YogaSMC](https://github.com/zhen-zen/YogaSMC). It shows battery health and live history, charging/Fn lock/performance controls, firmware capabilities, and read-only driver/ACPI diagnostics.
+
+| Battery | Controls | Device | Diagnostics |
+| :---: | :---: | :---: | :---: |
+| ![IdeaVPC battery dashboard](Tools/IdeaVPC/Screenshots/battery.png) | ![IdeaVPC charging and keyboard controls](Tools/IdeaVPC/Screenshots/controls.png) | ![IdeaVPC device and firmware capabilities](Tools/IdeaVPC/Screenshots/device.png) | ![IdeaVPC live system diagnostics](Tools/IdeaVPC/Screenshots/diagnostics.png) |
+
+Fresh screenshots captured on macOS Tahoe 26.7.3 on November 13, 2026. Download **IdeaVPC_1.0_build3.zip** and the sanitized **OpenCore 1.0.8 EFI** from [Releases](https://github.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/releases/latest). IdeaVPC requires macOS 26 and a working YogaSMC driver; the app does not install kexts or change EFI. The app is ad-hoc signed and is not notarized. Hardware-changing controls and administrator elevation have not been tested; diagnostics and screenshot capture used read-only operations.
+
 ## OpenCore Installation Guide
 
 Go to [INSTALLATION_GUIDE_OPENCORE.md](INSTALLATION_GUIDE_OPENCORE.md)(**Detailed guide**)
@@ -70,6 +80,8 @@ Native Wi-Fi works out-of-the-box via [`AirportItlwm.kext`](https://github.com/l
 
 ### Kexts Used (Grouped by Hardware Feature)
 
+Enabled/Disabled values below reflect the mounted EFI packaged for v4.1.1; runtime attachment is reported separately by IdeaVPC diagnostics.
+
 | Hardware Feature | Kext | Status | Info / Purpose |
 | :--- | :--- | :---: | :--- |
 | **System & Core** | [Lilu.kext](https://github.com/acidanthera/Lilu) | Enabled | Arbitrary kext and process patching engine for macOS. |
@@ -79,6 +91,8 @@ Native Wi-Fi works out-of-the-box via [`AirportItlwm.kext`](https://github.com/l
 | | [RestrictEvents.kext](https://github.com/acidanthera/RestrictEvents) | Enabled | Blocks unwanted background daemons and unlocks hardware features. |
 | | [FeatureUnlock.kext](https://github.com/acidanthera/FeatureUnlock) | Enabled | Unlocks Sidecar, AirPlay, and night shift support. |
 | | [ECEnabler.kext](https://github.com/1Revenger1/ECEnabler) | Disabled | Disabled; Embedded Controller handled natively via `SSDT-EC.aml`. |
+| | [HWPEnabler.kext](https://github.com/PMheart/HWPEnable) | Disabled | Optional hardware P-state helper; disabled in the release EFI. |
+| | [RTCMemoryFixup.kext](https://github.com/acidanthera/RTCMemoryFixup) | Disabled | Optional RTC memory patcher; disabled in the release EFI. |
 | **Graphics & Backlight** | [WhateverGreen.kext](https://github.com/acidanthera/WhateverGreen) | Enabled | Framebuffer and display patches for Intel UHD Graphics 630. |
 | | [BrightnessKeys.kext](https://github.com/acidanthera/BrightnessKeys) | Enabled | Handler for display brightness function keys (F11/F12) without DSDT patches. |
 | **Audio** | [SimpleHDA.kext](https://github.com/laobamac/SimpleHDA) | Enabled | Native lightweight AppleHDA audio driver for Realtek ALC230 codec. |
@@ -90,13 +104,14 @@ Native Wi-Fi works out-of-the-box via [`AirportItlwm.kext`](https://github.com/l
 | | [BlueToolFixup.kext](https://github.com/acidanthera/BrcmPatchRAM) | Enabled | Required for macOS 12 Monterey through macOS 26 Tahoe Bluetooth stack. |
 | | [BrcmPatchRAM3.kext](https://github.com/acidanthera/BrcmPatchRAM) | Disabled | Disabled; Intel Bluetooth card present. |
 | | [BrcmFirmwareData.kext](https://github.com/acidanthera/BrcmPatchRAM) | Disabled | Disabled; Intel Bluetooth card present. |
+| | [IntelBluetoothInjector.kext](https://github.com/lshbluesky/IntelBluetoothFirmware) | Disabled | Legacy codeless Bluetooth injector; disabled on Tahoe. |
 | **Input (Trackpad & Keyboard)** | [VoodooI2C.kext](https://github.com/VoodooI2C/VoodooI2C) | Enabled | Core I2C bus controller driver for ELAN0001 I2C touchpad. |
 | | [VoodooI2CHID.kext](https://github.com/VoodooI2C/VoodooI2C) | Enabled | I2C HID satellite driver for multi-touch gestures. |
 | | [VoodooPS2Controller.kext](https://github.com/acidanthera/VoodooPS2) | Enabled | PS/2 keyboard controller driver. |
 | **Sensors & Power** | [SMCProcessor.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Processor Temperature Monitoring. |
 | | [SMCSuperIO.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Motherboard hardware sensor and fan speed readouts. |
 | | [SMCBatteryManager.kext](https://github.com/acidanthera/VirtualSMC) | Enabled | Battery status and charge cycle monitoring. |
-| | [YogaSMC.kext](https://github.com/zhen-zen/YogaSMC) | Disabled | Disabled; OEM conservation mode features currently inactive. |
+| | [YogaSMC.kext](https://github.com/zhen-zen/YogaSMC) | Enabled | Provides the IdeaVPC service used by the IdeaVPC companion app. |
 | **USB & Storage** | [NVMeFix.kext](https://github.com/acidanthera/NVMeFix) | Enabled | Power management and APST state optimization for non-Apple NVMe SSDs. |
 | | [HoRNDIS.kext](https://github.com/jwise/HoRNDIS) | Enabled | USB tethering support for Android devices. |
 | | [USBMap.kext](https://github.com/corpnewt/USBMap) | Disabled | Disabled; native macOS XHCI handles ports (under 15-port limit) without D3 crashes. |
@@ -108,13 +123,13 @@ Native Wi-Fi works out-of-the-box via [`AirportItlwm.kext`](https://github.com/l
 | **System & Core** | `SSDT-AWAC.aml` | Enabled | Sets `STAS = 1` to resolve AWAC / RTC clock lockup on Comet Lake | [Dortania AWAC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/awac.html) |
 | | `SSDT-EC.aml` | Enabled | Injects fake Embedded Controller device (`ACID0001`) with Darwin conditional | [Dortania EC Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html) |
 | | `SSDT-GPRW.aml` | Enabled | Resolves instant wake from sleep caused by USB/LAN assertion | [Dortania Sleep Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/sleep.html) |
-| | `SSDT-ECRW.aml` | Disabled | Disabled; helper table for disabled `YogaSMC.kext` | [YogaSMC](https://github.com/zhen-zen/YogaSMC) |
-| | `SSDT-YVPC.aml` | Disabled | Disabled; Lenovo virtual peripheral controller for disabled `YogaSMC.kext` | [YogaSMC](https://github.com/zhen-zen/YogaSMC) |
+| | `SSDT-ECRW.aml` | Disabled | Disabled; optional helper table; not required by the current IdeaVPC service | [YogaSMC](https://github.com/zhen-zen/YogaSMC) |
+| | `SSDT-YVPC.aml` | Disabled | Disabled; optional Lenovo VPC helper; current IdeaVPC service attaches without it | [YogaSMC](https://github.com/zhen-zen/YogaSMC) |
 | | `SSDT-RCSM.aml` | Disabled | Disabled; redundant helper table not required on Comet Lake | - |
 | **CPU Power Management** | `SSDT-PLUG.aml` | Enabled | Injects `plugin-type=1` under `PR00` for native CPU Power Management (XCPM) | [Dortania Power Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/plug.html) |
 | **Graphics & Backlight** | `SSDT-PNLF.aml` | Enabled | Defines clean `PNLF` device (`_UID = 0x13`) under `PCI0.GFX0` for display backlight | [Dortania Backlight Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/backlight.html) |
 | | `SSDT-ALS0.aml` | Enabled | Ambient Light Sensor (`ACPI0008`) stub to preserve display brightness across reboots | [OpenCorePkg ALS0](https://github.com/Acidanthera/OpenCorePkg/blob/master/Docs/AcpiSamples/Source/SSDT-ALS0.dsl) |
-| | `SSDT-MEM2.aml` | Enabled | Adds missing MEM2 device to IGPU for proper memory map integration | [Dortania IGPU Guide](https://dortania.github.io/Getting-Started-With-ACPI/) |
+| | `SSDT-MEM2.aml` | Disabled | Disabled in the current release EFI; legacy IGPU memory-map helper | [Dortania IGPU Guide](https://dortania.github.io/Getting-Started-With-ACPI/) |
 | **Input (Trackpad)** | `SSDT-TPD0.aml` | Enabled | Injects fixed I2C trackpad device with 4-arg `_DSM` fallback to prevent panics | [VoodooI2C Guide](https://voodooi2c.github.io/) |
 | | `SSDT-HPET.aml` | Enabled | Fixes IRQ routing conflicts (IRQ 0, 8) for system timer and RTC | [Dortania HPET Guide](https://dortania.github.io/Getting-Started-With-ACPI/Universal/irq.html) |
 | | `SSDT-XOSI.aml` | Enabled | Windows OSI emulation to route I2C trackpad interrupts properly | [Dortania Trackpad Guide](https://dortania.github.io/Getting-Started-With-ACPI/Laptops/trackpad.html) |

@@ -3,3 +3,6 @@
 .idea
 Tools/*.zip
 SysReport/
+Tools/IdeaVPC/Build/
+Tools/IdeaVPC/Assets/AppIcon.iconset/
+Tools/IdeaVPC/Sources/*.before-*
