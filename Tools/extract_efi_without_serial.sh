@@ -123,6 +123,13 @@ if [ -f "${CONFIG_PLIST}" ]; then
   sanitize_key "PlatformInfo.Generic.SystemUUID" "PLEASE INSERT YOUR OWN"
   sanitize_key "PlatformInfo.Generic.MLB" "PLEASE INSERT YOUR OWN"
 
+  # ROM is a hardware MAC identifier; publish a six-byte zero placeholder.
+  for section in Generic DataHub SMBIOS; do
+    if plutil -extract "PlatformInfo.${section}.ROM" raw "${CONFIG_PLIST}" >/dev/null 2>&1; then
+      plutil -replace "PlatformInfo.${section}.ROM" -data AAAAAAAA "${CONFIG_PLIST}"
+    fi
+  done
+
   # SMBIOS
   sanitize_key "PlatformInfo.SMBIOS.BoardSerialNumber" "PLEASE INSERT YOUR OWN"
   sanitize_key "PlatformInfo.SMBIOS.ChassisSerialNumber" "PLEASE INSERT YOUR OWN"

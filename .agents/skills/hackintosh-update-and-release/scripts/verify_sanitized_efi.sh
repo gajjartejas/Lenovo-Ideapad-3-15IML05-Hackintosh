@@ -91,6 +91,27 @@ else
     echo "✓ SystemUUID is sanitized ('$UUID')"
 fi
 
+# Verify every PlatformInfo identity field, including the hardware ROM address.
+python3 - "$CONFIG_PLIST" <<'PYVERIFY'
+import plistlib, sys
+config = plistlib.load(open(sys.argv[1], "rb"))
+keys = {"SystemSerialNumber", "SystemUUID", "MLB", "BoardSerialNumber", "ChassisSerialNumber", "ROM"}
+def check(node, path="PlatformInfo"):
+    if not isinstance(node, dict):
+        return
+    for key, value in node.items():
+        if key in keys:
+            safe = value in ("", b"", "PLEASE INSERT YOUR OWN")
+            if key == "ROM":
+                safe = isinstance(value, bytes) and value == bytes(6)
+            if not safe:
+                raise SystemExit(f"Unsanitized identity field: {path}.{key}")
+        elif isinstance(value, dict):
+            check(value, f"{path}.{key}")
+check(config.get("PlatformInfo", {}))
+print("✓ All PlatformInfo identity fields, including ROM, are sanitized.")
+PYVERIFY
+
 # Check for junk files
 JUNK=$(find "$TEMP_DIR" -name ".DS_Store" -o -name "*~" -o -name "*.bak" | wc -l | tr -d ' ')
 if [ "$JUNK" -gt 0 ]; then
