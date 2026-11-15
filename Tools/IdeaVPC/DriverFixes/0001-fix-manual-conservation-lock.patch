@@ -1,0 +1,36 @@
+--- a/YogaSMC/YogaVPC/IdeaVPC.cpp
++++ b/YogaSMC/YogaVPC/IdeaVPC.cpp
+@@ -194,9 +194,10 @@
+             } else if (!updateBattery(false)) {
+                 status = kIOReturnIOError;
+             } else if (value->getValue() != (rapid ? rapidChargeMode : conservationMode)) {
+-                if (!rapid && conservationModeLock)
+-                    status = kIOReturnNotPermitted;
+-                else if (!(rapid ? toggleRapidCharge() : toggleConservation()))
++                // conservationModeLock gates automatic SMC requests during boot.
++                // Explicit user requests follow the legacy pane's manual path;
++                // do not clear the SMC lock or treat it as an admin permission.
++                if (!(rapid ? toggleRapidCharge() : toggleConservation()))
+                     status = kIOReturnIOError;
+             }
+         } else {
+--- a/YogaSMC.xcodeproj/project.pbxproj
++++ b/YogaSMC.xcodeproj/project.pbxproj
+@@ -1091,7 +1091,7 @@
+ 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+ 				CODE_SIGN_STYLE = Manual;
+ 				COPY_PHASE_STRIP = NO;
+-				CURRENT_PROJECT_VERSION = 2.0.0;
++				CURRENT_PROJECT_VERSION = 2.0.1;
+ 				DEBUG_INFORMATION_FORMAT = dwarf;
+ 				ENABLE_HARDENED_RUNTIME = YES;
+ 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+@@ -1156,7 +1156,7 @@
+ 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+ 				CODE_SIGN_STYLE = Manual;
+ 				COPY_PHASE_STRIP = NO;
+-				CURRENT_PROJECT_VERSION = 2.0.0;
++				CURRENT_PROJECT_VERSION = 2.0.1;
+ 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+ 				ENABLE_HARDENED_RUNTIME = YES;
+ 				ENABLE_NS_ASSERTIONS = NO;

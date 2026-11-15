@@ -43,7 +43,16 @@ Please backup your EFI before upgrading.
 ```
 
 ## Release Asset Format
-- Attached file: `Tools/OC_<OC_VERSION_STR>_<YYYY>_<MM>_<DD>.zip`
-- Ensure the archive contains root folders `EFI/OC` and `EFI/BOOT`.
-- Ensure all serial numbers and IDs are sanitized using `scripts/verify_sanitized_efi.sh`.
+- Attached OpenCore EFI: `Tools/OC_<OC_VERSION_STR>_<YYYY>_<MM>_<DD>.zip`
+  - Ensure the archive contains root folders `EFI/OC` and `EFI/BOOT`.
+  - Ensure all serial numbers and IDs are sanitized using `scripts/verify_sanitized_efi.sh`.
+- Attached Companion Tools (if present): `Tools/IdeaVPC_<VERSION>_build<BUILD>.zip`
+  - Standalone macOS app bundle `IdeaVPC.app` tested with `test.sh` and codesigned.
+- Include SHA-256 block at the end of release notes:
+  ```markdown
+  ### SHA-256
+
+    <sha256>  OC_<version>_<date>.zip
+    <sha256>  IdeaVPC_<version>_build<build>.zip
+  ```
 

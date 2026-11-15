@@ -6,6 +6,7 @@ import Charts
 struct Detail: Identifiable, Sendable { let name: String; let value: String; var id: String { name } }
 struct Snapshot: Sendable {
     var connected = false
+    var pane = PaneState()
     var controls: [String: String] = [:]
     var battery: [Detail] = []
     var device: [Detail] = []
@@ -19,7 +20,7 @@ struct Snapshot: Sendable {
     var updated = Date()
 }
 enum VPC {
-    static let booleans = ["ConservationMode", "RapidChargeMode", "FnlockMode", "AlwaysOnUSBMode"]
+    static let booleans = PanePolicy.booleanKeys
     static func properties(_ name: String) -> [String: Any] {
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching(name))
         guard service != 0 else { return [:] }
@@ -36,14 +37,15 @@ enum VPC {
         return String(describing: value)
     }
     static func read() -> Snapshot {
-        let p = properties("IdeaVPC"), b = properties("AppleSmartBattery")
-        var s = Snapshot(); s.connected = !p.isEmpty
-        for key in booleans + ["BacklightLevel"] { if let v = p[key] { s.controls[key] = display(v) } }
+        let p = properties("YogaVPC"), b = properties("AppleSmartBattery")
+        var s = Snapshot(); s.connected = !p.isEmpty; s.pane = PaneState(p)
+        for key in booleans + ["BacklightLevel", "BacklightTimeout", "AutoBacklight"] { if let v = p[key] { s.controls[key] = display(v) } }
         if let d = p["DYTC"] as? [String: Any] {
-            s.controls["DYTC"] = d["PerfMode"].map(display)
-            for k in ["FuncMode", "PerfMode", "Revision"] { if let v = d[k] { s.device.append(Detail(name: "DYTC · \(k)", value: display(v))) } }
+            s.controls["DYTCMode"] = d["PerfMode"].map(display)
+            s.controls["DYTCPSCMode"] = PaneState.number(d["PerfMode"]).map(String.init)
+            for k in ["FuncMode", "PerfMode", "Revision", "SubRevision"] { if let v = d[k] { s.device.append(Detail(name: "DYTC · \(k)", value: display(v))) } }
         }
-        for k in ["VersionInfo", "EC Capability", "EC Access Retries", "PrimeKeyType", "BacklightLevel", "AlwaysOnUSBMode"] {
+        for k in ["VersionInfo", "EC Capability", "EC Access Retries", "EC Capability Reason", "EC Read Byte Method", "EC Read Buffer Method", "EC Write Byte Method", "PrimeKeyType", "BacklightLevel", "AlwaysOnUSBMode"] {
             if let v = p[k] { s.device.append(Detail(name: k, value: display(v))) }
         }
         if let d = p["Capability"] as? [String: Any] {
@@ -72,29 +74,45 @@ enum VPC {
         return s
     }
     static func write(_ key: String, _ value: String) -> kern_return_t {
-        var object: Any
-        if booleans.contains(key), ["true", "false"].contains(value) { object = NSNumber(value: value == "true") }
-        else if key == "DYTC", ["Quiet", "Balanced", "Performance"].contains(value) { object = value }
-        else { return kIOReturnBadArgument }
-        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IdeaVPC"))
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("YogaVPC"))
         guard service != 0 else { return kIOReturnNotFound }
         defer { IOObjectRelease(service) }
-        return IORegistryEntrySetCFProperties(service, [key: object] as CFDictionary)
+        var raw: Unmanaged<CFMutableDictionary>?
+        guard IORegistryEntryCreateCFProperties(service, &raw, kCFAllocatorDefault, 0) == KERN_SUCCESS,
+              let properties = raw?.takeRetainedValue() as? [String: Any],
+              let plan = PanePolicy.plan(key, value, properties: properties) else { return kIOReturnBadArgument }
+        return PanePolicy.perform(plan) { write in
+            IORegistryEntrySetCFProperties(service, [write.key: write.value] as CFDictionary)
+        }
     }
     static func shellQuote(_ s: String) -> String { "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'" }
     static func apply(_ key: String, _ value: String) -> String? {
-        let code = write(key, value)
-        if code == KERN_SUCCESS { return nil }
-        guard code == kIOReturnNotPrivileged || code == kIOReturnNotPermitted else { return "Driver rejected the request (\(code))." }
+        let version = properties("YogaVPC")["VersionInfo"] as? String ?? ""
+        return RequestErrors.execute(key: key, driverVersion: version, canAuthorize: geteuid() != 0,
+            write: { write(key, value) }, authorize: { authorize(key, value, driverVersion: version) })
+    }
+    private static func authorize(_ key: String, _ value: String, driverVersion: String) -> String? {
         let executable = Bundle.main.executablePath ?? CommandLine.arguments[0]
         let command = [executable, "--set", key, value].map(shellQuote).joined(separator: " ")
         let literal = command.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
+        let script = """
+        try
+            do shell script "\(literal)" with administrator privileges
+            return "IDEAVPC_AUTH_OK"
+        on error errorText number errorNumber
+            return "IDEAVPC_AUTH_FAILURE=" & errorNumber & linefeed & errorText
+        end try
+        """
         let process = Process(); process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", "do shell script \"\(literal)\" with administrator privileges"]
-        let err = Pipe(); process.standardError = err; process.standardOutput = FileHandle.nullDevice
-        do { try process.run(); process.waitUntilExit() } catch { return error.localizedDescription }
-        if process.terminationStatus != 0 { return String(data: err.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "Authorization or setting change failed." }
-        return nil
+        process.arguments = ["-e", script]
+        let output = Pipe(); let errors = Pipe()
+        process.standardOutput = output; process.standardError = errors
+        do { try process.run() } catch { return "Could not start administrator authorization: \(error.localizedDescription)" }
+        let data = output.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        // osascript stderr is deliberately not shown as a raw execution-error alert.
+        _ = errors.fileHandleForReading.readDataToEndOfFile()
+        return RequestErrors.authorizedResult(output: String(data: data, encoding: .utf8) ?? "", terminationStatus: process.terminationStatus, key: key, driverVersion: driverVersion)
     }
 }
 struct HistoryPoint: Identifiable { let id = UUID(); let date: Date; let percent: Double?; let watts: Double? }
@@ -141,16 +159,18 @@ struct HistoryPoint: Identifiable { let id = UUID(); let date: Date; let percent
             try? await Task.sleep(for: .milliseconds(800))
             state = await Task.detached(priority: .utility) { VPC.read() }.value
             record()
-            let expected = value == "true" ? "On" : value == "false" ? "Off" : value
             if let failure { error = failure }
-            else if state.controls[key]?.lowercased() != expected.lowercased() { error = "The driver did not confirm this setting. The firmware may have rejected it. Current value: \(state.controls[key] ?? "unavailable")." }
-            else { status = "Setting confirmed · \(state.updated.formatted(date: .omitted, time: .shortened))" }
+            else if let matched = PanePolicy.matches(key, value: value, controls: state.controls, pane: state.pane) {
+                if matched { status = "Driver reports requested value · \(state.updated.formatted(date: .omitted, time: .shortened))" }
+                else { error = "The driver did not report the requested value. A multi-step change may be partial. Refresh before trying again." }
+            } else { status = "Request sent · this driver does not publish a verifiable state for this control." }
             busy = false
         }
     }
 }
 struct ContentView: View {
-    @StateObject private var model = Model()
+    @ObservedObject var model: Model
+    @ObservedObject var preferences: AppPreferences
     @Environment(\.scenePhase) private var phase
     @State private var selection = "Battery"
     @State private var chartMetric = "Charge"
@@ -161,11 +181,13 @@ struct ContentView: View {
             List(selection: $selection) {
                 Label("Battery", systemImage: "battery.100percent").tag("Battery")
                 Label("Controls", systemImage: "slider.horizontal.3").tag("Controls")
+                Label("Pane settings", systemImage: "switch.2").tag("Pane settings")
+                Label("App settings", systemImage: "gearshape").tag("App settings")
                 Label("Device", systemImage: "laptopcomputer").tag("Device")
                 Label("Diagnostics", systemImage: "stethoscope").tag("Diagnostics")
             }.navigationTitle("IdeaVPC").navigationSplitViewColumnWidth(min: 155, ideal: 175, max: 220)
             .safeAreaInset(edge: .bottom) {
-                Label(model.state.connected ? "IdeaPad connected" : "Not connected", systemImage: model.state.connected ? "circle.fill" : "circle")
+                Label(model.state.connected ? model.state.pane.driver + " connected" : "Not connected", systemImage: model.state.connected ? "circle.fill" : "circle")
                     .font(.caption).foregroundStyle(.secondary).padding(16)
             }
         } detail: {
@@ -175,6 +197,8 @@ struct ContentView: View {
                         if selection == "Battery" { batteryPage }
                         else if selection == "Controls" { controlsPage }
                         else if selection == "Diagnostics" { diagnosticsPage }
+                        else if selection == "Pane settings" { PaneSettingsView(model: model) }
+                        else if selection == "App settings" { AppSettingsView(preferences: preferences, model: model) }
                         else { devicePage }
                     }.padding(24).frame(maxWidth: 1000, alignment: .leading).frame(maxWidth: .infinity)
                 }.background(Color(nsColor: .windowBackgroundColor))
@@ -275,11 +299,11 @@ struct ContentView: View {
                         badge("speedometer", color: .indigo)
                         VStack(alignment: .leading, spacing: 3) { Text("Performance mode"); Text("Lenovo thermal and power profile").font(.caption).foregroundStyle(.secondary) }
                         Spacer()
-                        if let mode = model.state.controls["DYTC"] {
-                            Picker("Performance mode", selection: Binding(get: { mode }, set: { model.set("DYTC", $0) })) {
+                        if let mode = model.state.controls["DYTCMode"] {
+                            Picker("Performance mode", selection: Binding(get: { mode }, set: { model.set("DYTCMode", $0) })) {
                                 ForEach(["Quiet", "Balanced", "Performance"], id: \.self) { Text($0).tag($0) }
                                 if !["Quiet", "Balanced", "Performance"].contains(mode) { Text(mode).tag(mode) }
-                            }.labelsHidden().frame(width: 145).disabled(model.busy)
+                            }.labelsHidden().frame(width: 145).disabled(model.busy || !model.state.pane.dytcFunctions.contains("MMC"))
                         } else { Text("Unavailable").foregroundStyle(.secondary) }
                     }.padding(12)
                     Divider().padding(.leading, 58)
@@ -306,7 +330,7 @@ struct ContentView: View {
     }
     var devicePage: some View {
         VStack(alignment: .leading, spacing: 20) {
-            banner("Lenovo IdeaPad", subtitle: model.state.connected ? "IdeaVPC is connected through YogaSMC." : "Waiting for the IdeaVPC service.", symbol: "laptopcomputer", color: .blue)
+            banner("Lenovo " + (model.state.pane.isThink ? "ThinkPad" : "IdeaPad"), subtitle: model.state.connected ? model.state.pane.driver + " is connected through YogaSMC." : "Waiting for the IdeaVPC service.", symbol: "laptopcomputer", color: .blue)
             HStack(spacing: 12) {
                 metric("Driver", value: model.state.connected ? "Connected" : "Offline", symbol: "checkmark.shield.fill", color: model.state.connected ? .green : .orange)
                 metric("EC access", value: model.state.device.first { $0.name == "EC Capability" }?.value ?? "—", symbol: "cpu", color: .purple)
@@ -399,7 +423,7 @@ struct ContentView: View {
 @main struct IdeaVPCApp: App {
     init() {
         if CommandLine.arguments.count == 4 && CommandLine.arguments[1] == "--set" {
-            let result = VPC.write(CommandLine.arguments[2], CommandLine.arguments[3]); if result != KERN_SUCCESS { fputs("Driver request failed: \(result)\n", stderr) }; exit(result == KERN_SUCCESS ? 0 : 1)
+            let result = VPC.write(CommandLine.arguments[2], CommandLine.arguments[3]); if result != KERN_SUCCESS { fputs("\(RequestErrors.helperMarker)\(result)\n", stderr) }; exit(result == KERN_SUCCESS ? 0 : 1)
         }
         if CommandLine.arguments.contains("--diagnostics") {
             for section in Diagnostics.collect(configPath: Diagnostics.defaultEFI()) {
@@ -412,8 +436,25 @@ struct ContentView: View {
             let s = VPC.read(); print("IdeaVPC connected: \(s.connected)\nControls: \(s.controls)\nBattery rows: \(s.battery.count)\nDevice rows: \(s.device.count)"); exit(s.connected ? 0 : 1)
         }
     }
+    @StateObject private var model = Model()
+    @StateObject private var preferences = AppPreferences()
     var body: some Scene {
-        WindowGroup { ContentView() }.defaultSize(width: 880, height: 760)
+        WindowGroup(id: "main") { ContentView(model: model, preferences: preferences) }.defaultSize(width: 880, height: 760)
         .commands { CommandGroup(replacing: .newItem) {} }
+        MenuBarExtra(isInserted: Binding(get: { preferences.showMenu }, set: { inserted in
+            // AppKit may echo the current value during scene reconciliation.
+            // Ignore that echo and defer real changes out of the view update.
+            guard inserted != preferences.showMenu else { return }
+            Task { @MainActor in
+                if inserted != preferences.showMenu { preferences.showMenu = inserted }
+            }
+        })) {
+            CompanionMenu(model: model, preferences: preferences)
+        } label: {
+            if preferences.menuTitle.isEmpty { Image(systemName: "laptopcomputer") }
+            else { Text(preferences.menuTitle) }
+        }
+
+
     }
 }

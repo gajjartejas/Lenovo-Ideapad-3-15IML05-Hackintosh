@@ -1,6 +1,6 @@
 # IdeaVPC
 
-A small native SwiftUI app for the Lenovo IdeaPad YogaSMC `IdeaVPC` service. Built and read-tested on Intel macOS 26.7.3 with YogaSMC 1.5.3. Requires macOS 26 and the existing, working YogaSMC driver. It does not install or modify EFI/kexts.
+A native SwiftUI app for YogaSMC, tested with the Lenovo IdeaPad `IdeaVPC` service. Shared pane features discover `YogaVPC` subclasses, including capability-gated ThinkPad controls. Built and read-tested on Intel macOS 26.7.3 with YogaSMC 1.5.3. Requires macOS 26 and the existing, working YogaSMC driver. It does not install or modify EFI/kexts.
 
 ## Run
 
@@ -13,7 +13,7 @@ Download `IdeaVPC_1.0_build3.zip` from the repository releases, extract it and o
 - Device: driver version, EC capability, DYTC details, and firmware capability flags. Presence flags are not proof a hardware feature works.
 - Read-only startup and automatic property refresh every 15 seconds while the app is active. Reading IORegistry does not force a firmware update; published driver values can be cached.
 - Explicit user changes use IOKit. If macOS rejects a request for insufficient privileges, the OS administrator dialog can run this same executable for a single allowlisted request. No password is collected by the app or stored. Requests are followed by a read-back; a driver return code alone is not treated as firmware success. Read-back can still reflect cached state rather than independently verified physical behaviour.
-- No raw EC writes, arbitrary ACPI calls, configurable charge percentage, fan controls, or automatic application of settings on launch.
+- No raw EC writes, arbitrary ACPI calls, direct fan controls, configurable IdeaPad charge percentage, or automatic firmware settings on launch. ThinkPad threshold controls are capability-gated in the 1.1 source build.
 
 ## Build
 
@@ -79,3 +79,41 @@ Build/IdeaVPC.app/Contents/MacOS/IdeaVPC --diagnostics
 Fresh Battery, Controls, Device and Diagnostics screenshots are included in the [main README](../../README.md#ideapad-vpc-tool). All four pages were visually inspected against the live IdeaVPC service on macOS 26.7.3. No firmware controls were changed. Earlier screenshot/navigation timeouts above describe previous development checks.
 
 The release EFI enables YogaSMC 1.5.3 and disables SSDT-MEM2; SSDT-ECRW and SSDT-YVPC remain disabled. The optional diagnostics reference can point to a different config than the boot EFI; its entries are configuration evidence only.
+
+## Standalone pane additions — 1.1 build 4
+
+The source build includes the missing YogaSMCPane controls without modifying YogaSMC or its legacy preference pane. See [FEATURE_PARITY.md](FEATURE_PARITY.md) for the complete mapping and limitations.
+
+- **Pane settings**: keyboard backlight levels, explicit timeout, all five automation options, clamshell mode, DYTC PSC profiles, opt-in battery ID and ThinkPad battery thresholds/LEDs. Unsupported controls are unavailable.
+- **App settings**: native standalone menu-bar item, custom title and Caps Lock indicator. Optional YogaSMCNC compatibility controls replace its legacy preferences UI, including fan preferences, menu title/visibility, Caps Lock visibility and backed-up event reset. YogaSMCNC itself is not bundled or required for the standalone features.
+- Corrects performance requests to the driver's `DYTCMode` key. Named mode capability, Balance/Balanced read-back and numeric request types are validated.
+- Every numeric/boolean/string request passes a bounded allowlist with capability checks, including the elevated executable route. No raw EC commands or automatic firmware writes are accepted. Threshold changes are sequential and may partly succeed; failures stop the sequence and are reported.
+- The new code is GPL-2.0-only; attribution and license ship in the app bundle.
+
+Build and test locally:
+
+```sh
+cd Tools/IdeaVPC
+./test.sh
+./build.sh
+codesign --verify --deep --strict Build/IdeaVPC.app
+Build/IdeaVPC.app/Contents/MacOS/IdeaVPC --diagnose
+```
+
+The published v4.1.1 ZIP remains version 1.0 build 3; these additions are a local/source update until a new release is requested. ThinkPad features and firmware writes are not hardware-tested on this IdeaPad.
+
+### New settings screens
+
+Fresh captures from the 1.1 build on macOS 26.7.3:
+
+| Pane settings | App settings |
+| :---: | :---: |
+| ![Native pane settings with unsupported controls disabled](Screenshots/pane-settings.png) | ![Standalone and optional YogaSMCNC preferences](Screenshots/app-settings.png) |
+
+See [VALIDATION.md](VALIDATION.md) for test results and hardware limitations.
+
+## Conservation-mode fix — 1.1.1 build 5
+
+The reported `-536870174` error is `kIOReturnNotPermitted`. The local YogaSMC 2.0.0 hardening build accidentally applied an automatic-control startup lock to explicit manual conservation changes. Password authorization cannot clear that lock.
+
+The app now distinguishes a driver refusal from a genuine privilege violation and decodes helper errors into readable messages. The driver correction is 2.0.1; updating only the app will not repair the already loaded 2.0.0 kext. See [DriverFixes/README.md](DriverFixes/README.md) for source patch, validation and installation boundaries. The legacy preference pane is unchanged.

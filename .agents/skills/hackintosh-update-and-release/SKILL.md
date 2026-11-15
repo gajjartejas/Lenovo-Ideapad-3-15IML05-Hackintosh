@@ -153,21 +153,42 @@ Match previous repository releases in style, naming, and structure:
 
 1. **Determine Tag and Title**:
    - Inspect existing releases: `gh release list`.
-   - Increment semantic tag (e.g., `v3.0.0` -> `v4.0.0`).
+   - Increment semantic tag (e.g., `v4.1.1` -> `v4.1.2`).
    - Title format: `OpenCore <OC_version> build for macOS <OS_name> <OS_version>`.
-2. **Draft Release Notes**:
-   - Follow [Release Template](./references/release-template.md).
-   - Include sections: `### Changelog`, `### What's Working/Not working`, `### Important`, and `## What's Changed`.
-3. **Verify Release Asset**:
+2. **Companion Tool Binaries (`Tools/IdeaVPC`)**:
+   - When companion utilities like `Tools/IdeaVPC` are present or updated:
+     1. Run test suite:
+        ```bash
+        cd Tools/IdeaVPC && ./test.sh
+        ```
+     2. Build and sign app bundle:
+        ```bash
+        ./build.sh
+        codesign --verify --deep --strict Build/IdeaVPC.app
+        ```
+     3. Verify diagnostics:
+        ```bash
+        Build/IdeaVPC.app/Contents/MacOS/IdeaVPC --diagnostics
+        ```
+     4. Package release archive:
+        ```bash
+        (cd Tools/IdeaVPC/Build && zip -r -q -X "../../IdeaVPC_<version>_build<build>.zip" IdeaVPC.app)
+        ```
+3. **Verify Release Assets**:
    - Ensure `Tools/OC_<version>_<YYYY>_<MM>_<DD>.zip` passes verification:
      ```bash
      ./.agents/skills/hackintosh-update-and-release/scripts/verify_sanitized_efi.sh Tools/OC_<version>_<YYYY>_<MM>_<DD>.zip
      ```
-4. **Publish Release**:
+   - Verify `Tools/IdeaVPC_<version>_build<build>.zip` integrity with `unzip -t`.
+   - Compute SHA-256 hashes of all release assets (`shasum -a 256 Tools/*.zip`).
+4. **Draft Release Notes**:
+   - Follow [Release Template](./references/release-template.md).
+   - Include sections: `### Changelog`, `### What's Working/Not working`, `### Important`, `## What's Changed`, and `### SHA-256`.
+5. **Publish Release**:
    ```bash
-   gh release create <tag> Tools/<archive.zip> --title "<title>" --notes-file /tmp/release_notes.md
+   gh release create <tag> Tools/<archive.zip> Tools/<companion.zip> --title "<title>" --notes-file /tmp/release_notes.md
    ```
-5. **Verify Publication**:
+6. **Verify Publication**:
    ```bash
    gh release view <tag>
    ```
@@ -179,9 +200,10 @@ Match previous repository releases in style, naming, and structure:
 - [ ] Inspected running system (`sw_vers`, `nvram`, `kextstat`).
 - [ ] Ran `Tools/extract_efi_without_serial.sh` and verified `verify_sanitized_efi.sh`.
 - [ ] Verified fresh screenshot placed for target version (or asked user if missing; NEVER used previous version screenshot).
+- [ ] Built, tested (`test.sh`), and packaged `Tools/IdeaVPC` companion binary (`IdeaVPC_<version>_build<build>.zip`).
 - [ ] Created `<major>.x/<version>/` with optimized `screenshot.png` and `README.md`.
 - [ ] Updated root `README.md` (replaced previous point-release screenshot column with latest, verified and marked disabled Kexts/SSDTs, trackpad grounding note, credits).
 - [ ] Verified or added `INSTALLATION_GUIDE_OPENCORE.md` following Dortania structure.
 - [ ] Created branch `feat--macos-<version>-support`, committed, opened PR, and squash merged.
 - [ ] Triaged and responded to open issues.
-- [ ] Published GitHub release with tag `vX.Y.Z`, matching release title, and sanitized EFI zip.
+- [ ] Published GitHub release with tag `vX.Y.Z`, matching release title, and all sanitized EFI & companion tool zips attached with SHA-256 hashes.

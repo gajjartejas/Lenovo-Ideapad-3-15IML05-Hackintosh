@@ -42,3 +42,5 @@ Tools/OC_107_2026_03_20.zip
 ### IdeaVPC
 
 Native macOS 26 companion for the YogaSMC IdeaVPC service. See [features, screenshots and build instructions](IdeaVPC/README.md). Download the standalone app ZIP alongside the sanitized OpenCore EFI from [Releases](https://github.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/releases/latest).
+
+The IdeaVPC source build also replaces missing YogaSMCPane controls with native SwiftUI pages; see the [feature map](IdeaVPC/FEATURE_PARITY.md). It includes standalone menu/Caps Lock settings and optional YogaSMCNC compatibility preferences.

@@ -29,7 +29,7 @@ Goal of this repo is to run macOS on Lenovo IdeaPad 3 15IML05 Laptop.
 | :---: | :---: | :---: | :---: |
 | ![IdeaVPC battery dashboard](Tools/IdeaVPC/Screenshots/battery.png) | ![IdeaVPC charging and keyboard controls](Tools/IdeaVPC/Screenshots/controls.png) | ![IdeaVPC device and firmware capabilities](Tools/IdeaVPC/Screenshots/device.png) | ![IdeaVPC live system diagnostics](Tools/IdeaVPC/Screenshots/diagnostics.png) |
 
-Fresh screenshots captured on macOS Tahoe 26.7.3 on November 13, 2026. Download **IdeaVPC_1.0_build3.zip** and the sanitized **OpenCore 1.0.8 EFI** from [Releases](https://github.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/releases/latest). IdeaVPC requires macOS 26 and a working YogaSMC driver; the app does not install kexts or change EFI. The app is ad-hoc signed and is not notarized. Hardware-changing controls and administrator elevation have not been tested; diagnostics and screenshot capture used read-only operations.
+Fresh screenshots captured on macOS Tahoe 26.7.3 on November 13, 2026. Download **IdeaVPC_1.1.1_build5.zip** and the sanitized **OpenCore 1.0.8 EFI** from [Releases](https://github.com/gajjartejas/Lenovo-Ideapad-3-15IML05-Hackintosh/releases/latest). IdeaVPC requires macOS 26 and a working YogaSMC driver; the app does not install kexts or change EFI. The app is ad-hoc signed and is not notarized. Hardware-changing controls and administrator elevation have not been tested; diagnostics and screenshot capture used read-only operations.
 
 ## OpenCore Installation Guide
 
@@ -80,7 +80,7 @@ Native Wi-Fi works out-of-the-box via [`AirportItlwm.kext`](https://github.com/l
 
 ### Kexts Used (Grouped by Hardware Feature)
 
-Enabled/Disabled values below reflect the mounted EFI packaged for v4.1.1; runtime attachment is reported separately by IdeaVPC diagnostics.
+Enabled/Disabled values below reflect the mounted EFI packaged for v4.1.2; runtime attachment is reported separately by IdeaVPC diagnostics.
 
 | Hardware Feature | Kext | Status | Info / Purpose |
 | :--- | :--- | :---: | :--- |
