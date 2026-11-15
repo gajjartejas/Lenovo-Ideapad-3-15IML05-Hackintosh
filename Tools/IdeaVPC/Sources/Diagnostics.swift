@@ -66,7 +66,7 @@ enum Diagnostics {
             .init(name: "Alternative backlight fix", value: value(gpu, "enable-backlight-registers-alternative-fix")),
             .init(name: "Platform ID (raw bytes)", value: value(gpu, "AAPL,ig-platform-id")),
             .init(name: "Device ID (raw bytes)", value: value(gpu, "device-id")),
-            .init(name: "Keyboard backlight", value: value(VPC.properties("IdeaVPC"), "BacklightLevel"))
+            .init(name: "Keyboard backlight", value: value(VPC.properties("YogaVPC"), "BacklightLevel"))
         ]))
         sections.append(.init(title: "Other ACPI effects", symbol: "puzzlepiece.extension", rows: [
             .init(name: "EC0", value: named("EC0").isEmpty ? "Not observed" : "Present"),
